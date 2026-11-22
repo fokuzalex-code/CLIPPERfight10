@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0F1522"><link rel="manifest" href="/manifest.webmanifest">
+<title>Clipper.fight</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600&family=Big+Shoulders+Display:wght@800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root{--bg:#0F1522;--s1:#171F31;--s2:#222D47;--tx:#EAF0FB;--mu:#93A0B8;--red:#FF4B4B;--blue:#5B86FF;--gold:#F5B83D;--ok:#3DDC97}
+body{margin:0;background:var(--bg);color:var(--tx);font:16px/1.45 Archivo,system-ui,sans-serif;min-height:100dvh}
+.d{font-family:'Big Shoulders Display',Impact,sans-serif;font-weight:900;letter-spacing:.01em}
+.card{background:var(--s1);border-radius:20px;padding:18px}
+.in{width:100%;min-height:48px;background:var(--s2);color:var(--tx);border:1px solid #33415F;border-radius:12px;padding:.55rem .8rem;font-size:16px}
+.in:focus-visible,.btn:focus-visible,input:focus-visible+.tile{outline:3px solid var(--blue);outline-offset:2px}
+.btn{min-height:48px;padding:0 18px;border-radius:999px;font-weight:600;display:inline-flex;align-items:center;justify-content:center;border:0;color:#fff;cursor:pointer;text-decoration:none}
+.btn:disabled{opacity:.5}.red{background:var(--red)}.blue{background:var(--blue)}.ghost{background:var(--s2)}
+.lab{font-size:13px;color:var(--mu);display:block;margin-bottom:6px}
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--s2);border-radius:999px;padding:4px}
+.seg button{min-height:44px;border-radius:999px;border:0;background:none;color:var(--mu);font-weight:600}
+.seg [aria-selected=true]{background:var(--tx);color:var(--bg)}
+.tile{border-radius:14px;background:var(--s2);padding:10px 4px 8px;text-align:center;cursor:pointer;border:2px solid transparent;font-size:12.5px;color:var(--mu);height:100%}
+input:checked+.tile{border-color:var(--red);color:var(--tx);background:#2B2640}
+.tile svg{width:28px;height:48px;margin:0 auto 4px;display:block}
+.chip{min-height:40px;padding:0 14px;border-radius:999px;border:1px solid #33415F;background:none;color:var(--tx)}
+.st{display:flex;align-items:center;gap:10px;color:var(--mu);min-height:30px}
+.st i{width:12px;height:12px;border-radius:50%;background:var(--s2);flex:none}
+.st.on{color:var(--tx)}.st.on i{background:var(--blue);box-shadow:0 0 0 4px #5B86FF33}.st.ok i{background:var(--ok)}.st.ok{color:var(--tx)}
+.ring{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;flex:none;background:conic-gradient(var(--gold) calc(var(--v)*1%),var(--s2) 0)}
+.ring b{width:42px;height:42px;border-radius:50%;background:var(--s1);display:grid;place-items:center;font-size:17px}
+.dock{position:sticky;bottom:0;padding:12px 0 calc(12px + env(safe-area-inset-bottom));background:linear-gradient(transparent,var(--bg) 30%)}
+summary{cursor:pointer;min-height:44px;display:flex;align-items:center;color:var(--mu)}
+</style></head>
+<body>
+<main class="max-w-5xl mx-auto px-4 pt-6">
+  <header class="mb-6"><h1 class="d text-5xl leading-none">CLIPPER<span style="color:var(--red)">.</span>FIGHT</h1>
+  <p style="color:var(--mu)" class="mt-1">De un stream largo a clips verticales listos para publicar.</p></header>
+  <div class="grid lg:grid-cols-[430px_1fr] gap-6 items-start">
+  <section class="space-y-4">
+    <div class="card space-y-4">
+      <h2 class="d text-2xl">1 · Fuente</h2>
+      <div class="seg" role="tablist"><button role="tab" aria-selected="true" data-tab="url">Enlace</button><button role="tab" aria-selected="false" data-tab="file">Mi video</button></div>
+      <div id="p-url"><label for="url" class="lab">VOD o clip de Kick / Twitch</label><input id="url" class="in" inputmode="url" autocapitalize="off" placeholder="https://kick.com/…"></div>
+      <div id="p-file" hidden><label for="file" class="lab">Video de la galería (MP4 o MKV)</label><input id="file" type="file" accept="video/*,.mkv" class="in pt-3"></div>
+      <details><summary>Analizar solo un tramo del video</summary>
+        <div class="grid grid-cols-2 gap-3"><div><label for="from_min" class="lab">Desde el minuto</label><input id="from_min" type="number" inputmode="numeric" min="0" value="0" class="in"></div>
+        <div><label for="to_min" class="lab">Hasta el minuto (0 = final)</label><input id="to_min" type="number" inputmode="numeric" min="0" value="0" class="in"></div></div>
+        <p class="text-sm mt-2" style="color:var(--mu)">Recomendado en streams de varias horas: baja solo ese tramo y termina mucho antes.</p></details>
+    </div>
+    <div class="card space-y-4">
+      <h2 class="d text-2xl">2 · Formato</h2>
+      <div><span class="lab">Encuadre vertical</span><div id="modes" class="grid grid-cols-5 gap-2"></div></div>
+      <div><span class="lab">Duración del clip</span><div class="flex flex-wrap gap-2">
+        <button class="chip" data-d="15,30">Corto 15–30 s</button><button class="chip" data-d="30,60">Shorts 30–60 s</button><button class="chip" data-d="45,90">Reels 45–90 s</button></div></div>
+      <div class="grid grid-cols-3 gap-3">
+        <div><label for="n" class="lab">Clips</label><input id="n" type="number" inputmode="numeric" min="1" max="10" value="5" class="in"></div>
+        <div><label for="min_s" class="lab">Mín. s</label><input id="min_s" type="number" inputmode="numeric" value="30" class="in"></div>
+        <div><label for="max_s" class="lab">Máx. s</label><input id="max_s" type="number" inputmode="numeric" value="60" class="in"></div></div>
+    </div>
+    <div class="card space-y-4">
+      <h2 class="d text-2xl">3 · Marca y calidad</h2>
+      <div><label for="quality" class="lab">Calidad</label><select id="quality" class="in"><option value="rapido">Rápido (720p)</option><option value="equilibrado" selected>Equilibrado (1080p)</option><option value="alta">Alta calidad (1080p, lento)</option></select></div>
+      <div><label for="watermark" class="lab">Marca de agua (texto)</label><input id="watermark" class="in" placeholder="@tucanal"></div>
+      <div><label for="hashtags" class="lab">Hashtags fijos</label><input id="hashtags" class="in" value="#fokuzrd #kick #gaming"></div>
+      <label class="flex items-center gap-3 min-h-[44px]"><input id="bar" type="checkbox" checked class="w-6 h-6"> Barra de progreso animada en el clip</label>
+    </div>
+    <div class="dock"><p id="err" role="alert" class="text-sm mb-2" style="color:var(--red)"></p>
+      <button id="go" class="btn red w-full d text-2xl" style="min-height:56px">GENERAR CLIPS</button></div>
+  </section>
+  <section class="space-y-4 pb-10">
+    <div id="run" class="card" hidden><h2 class="d text-2xl mb-2">En proceso</h2><div id="stages"></div>
+      <div class="h-2 rounded-full mt-3" style="background:var(--s2)"><div id="fill" class="h-full rounded-full" style="width:0;background:var(--blue)"></div></div>
+      <p id="msg" class="text-sm mt-2" style="color:var(--mu)" role="status"></p></div>
+    <div id="out" class="space-y-4"></div>
+    <div class="card"><h2 class="d text-2xl">Recientes</h2><div id="lib" class="mt-2 space-y-2"><p class="text-sm" style="color:var(--mu)">Aún no hay trabajos.</p></div></div>
+  </section></div>
+</main>
+<script>
+const $=s=>document.querySelector(s),CID=localStorage.cid||(localStorage.cid=(crypto.randomUUID?.()||String(Math.random()).slice(2)+Date.now()));
+const api=(u,o={})=>fetch(u,{...o,headers:{...(o.headers||{}),'X-Client':CID}});
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const R='fill="none" stroke="currentColor" stroke-width="2"',F='fill="currentColor"';
+const MODES=[['auto','Auto','<rect x="4" y="3" width="20" height="42" rx="3" '+R+' stroke-dasharray="3 3"/><path d="M14 16l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" '+F+'/>'],
+['camara','Cámara','<rect x="4" y="3" width="20" height="42" rx="3" '+R+'/><circle cx="14" cy="19" r="5" '+F+'/><rect x="8" y="27" width="12" height="9" rx="3" '+F+'/>'],
+['podcast','Podcast','<rect x="4" y="3" width="20" height="19" rx="3" '+F+'/><rect x="4" y="26" width="20" height="19" rx="3" '+F+'/>'],
+['gameplay','Gameplay','<rect x="4" y="3" width="20" height="29" rx="3" '+F+' opacity=".4"/><rect x="4" y="35" width="20" height="10" rx="3" '+F+'/>'],
+['fit','Completo','<rect x="4" y="3" width="20" height="42" rx="3" '+F+' opacity=".25"/><rect x="4" y="17" width="20" height="14" '+F+'/>']];
+const MODOS={fit:'video completo',camara:'cámara sola',podcast:'podcast',gameplay:'gameplay + cámara'};
+$('#modes').innerHTML=MODES.map((m,i)=>`<label><input type="radio" name="mode" value="${m[0]}" class="sr-only" ${i?'':'checked'}><div class="tile"><svg viewBox="0 0 28 48">${m[2]}</svg>${m[1]}</div></label>`).join('');
+const STAGES=['Descarga','Audio','Transcripción','Selección','Render'],TH=[0,.2,.3,.6,.61];
+let tab='url',lock=null;
+document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;document.querySelectorAll('[data-tab]').forEach(x=>x.setAttribute('aria-selected',x===b));$('#p-url').hidden=tab!=='url';$('#p-file').hidden=tab!=='file'});
+document.querySelectorAll('[data-d]').forEach(b=>b.onclick=()=>{[$('#min_s').value,$('#max_s').value]=b.dataset.d.split(',')});
+const err=t=>{$('#err').textContent=t||''};
+function stages(p){const k=TH.filter(t=>p>=t).length-1;$('#stages').innerHTML=STAGES.map((s,i)=>`<div class="st ${i<k?'ok':i===k?'on':''}"><i></i>${s}</div>`).join('')}
+function busy(b){$('#go').disabled=b;$('#run').hidden=!b&&!$('#msg').textContent;if(!b){lock?.release?.();lock=null}}
+function upload(f){return new Promise((ok,no)=>{const x=new XMLHttpRequest();x.open('POST','/api/jobs');x.setRequestHeader('X-Client',CID);
+  x.upload.onprogress=e=>{if(e.lengthComputable){const p=e.loaded/e.total;$('#fill').style.width=Math.round(p*100)+'%';$('#msg').textContent='Subiendo el video… '+Math.round(p*100)+'%'}};
+  x.onload=()=>{let j={};try{j=JSON.parse(x.responseText)}catch(e){}x.status<300?ok(j):no(j.detail||'Error al crear el trabajo')};
+  x.onerror=()=>no('No se pudo conectar con el servidor');x.send(f)})}
+$('#go').onclick=async()=>{err();const f=new FormData(),url=$('#url').value.trim(),file=$('#file').files[0];
+  if(tab==='url'){if(!url)return err('Pega un enlace de Kick o Twitch');f.append('url',url)}else{if(!file)return err('Elige un video de tu galería');f.append('file',file)}
+  ['n','min_s','max_s','from_min','to_min','quality','watermark','hashtags'].forEach(k=>f.append(k,$('#'+k).value));
+  f.append('mode',document.querySelector('input[name=mode]:checked').value);f.append('bar',$('#bar').checked?'1':'');
+  $('#out').innerHTML='';$('#run').hidden=false;stages(0);$('#fill').style.width='0';$('#msg').textContent='Enviando…';$('#go').disabled=true;
+  try{lock=await navigator.wakeLock?.request('screen')}catch(e){}
+  try{const{id}=await upload(f);localStorage.job=id;poll(id)}catch(e){err(e);$('#run').hidden=true;busy(false)}};
+async function poll(id){
+  try{const r=await api('/api/jobs/'+id);if(!r.ok)throw 0;const j=await r.json();
+    if(j.status==='done'||j.status==='error'){$('#go').disabled=false;lock?.release?.();lock=null;loadLib();
+      if(j.status==='error'){$('#run').hidden=true;err(j.msg)}else{$('#run').hidden=true;err();show(id,j.clips)}return}
+    $('#run').hidden=false;$('#go').disabled=true;stages(j.progress);$('#fill').style.width=Math.round(j.progress*100)+'%';$('#msg').textContent=j.msg+' ('+Math.round(j.progress*100)+'%)';
+    setTimeout(poll,2000,id)}catch(e){setTimeout(poll,4000,id)}}
+const mmss=s=>Math.floor(s/60)+':'+String(s%60).padStart(2,'0');
+function show(id,cs){const v=Date.now();window.CL=cs;
+  $('#out').innerHTML=(cs.length?`<a class="btn ghost w-full" href="/api/jobs/${id}/zip">Descargar todos (ZIP)</a>`:'')+(cs.map((c,i)=>`
+  <article class="card">
+    <div class="grid sm:grid-cols-[200px_1fr] gap-4">
+      <video src="/files/${id}/${c.file}?v=${v}" controls playsinline preload="metadata" class="w-full rounded-2xl bg-black aspect-[9/16] max-h-[70dvh] sm:max-h-none"></video>
+      <div class="space-y-3">
+        <div class="flex items-center gap-3"><div class="ring" style="--v:${c.score}" title="Potencial viral relativo a este video"><b class="d">${c.score}</b></div>
+          <p class="text-sm" style="color:var(--mu)">Desde ${mmss((c.offset||0)+c.start)} · ${c.dur} s · ${MODOS[c.mode]||''}</p></div>
+        <div><label class="lab" for="t${i}">Título</label><input id="t${i}" class="in" value="${esc(c.title)}"></div>
+        <div><label class="lab" for="h${i}">Hashtags</label><input id="h${i}" class="in" value="${esc(c.tags)}"></div>
+        <div class="grid grid-cols-2 gap-2">
+          <button class="btn blue" onclick="copyDesc(${i},this)">Copiar texto</button>
+          <button class="btn blue" onclick="share('${id}',${i})">Compartir</button>
+          <a class="btn ghost col-span-2" href="/files/${id}/${c.file}" download>Guardar video</a></div>
+        <details><summary>Ajustar recorte</summary><div class="grid grid-cols-2 gap-3"><div><label class="lab">Inicio (s)</label><input id="s${i}" type="number" inputmode="numeric" class="in" value="${c.start}"></div>
+          <div><label class="lab">Duración (s)</label><input id="d${i}" type="number" inputmode="numeric" class="in" value="${c.dur}"></div></div>
+          <button class="btn ghost w-full mt-3" onclick="redo('${id}',${i})">Recortar de nuevo</button></details>
+      </div></div></article>`).join('')||'<div class="card">No se encontraron momentos. Prueba con un video más largo.</div>')}
+function copy(t){if(navigator.clipboard&&isSecureContext)return navigator.clipboard.writeText(t);const a=document.createElement('textarea');a.value=t;document.body.append(a);a.select();document.execCommand('copy');a.remove()}
+async function copyDesc(i,b){await copy($('#t'+i).value+'\n\n'+$('#h'+i).value);b.textContent='¡Copiado!';setTimeout(()=>b.textContent='Copiar texto',1500)}
+async function share(id,i){const c=window.CL[i],u=`/files/${id}/${c.file}`;
+  try{const b=await(await fetch(u)).blob(),f=new File([b],c.file,{type:'video/mp4'}),t=$('#t'+i).value+' '+$('#h'+i).value;
+    if(navigator.canShare?.({files:[f]}))await navigator.share({files:[f],title:$('#t'+i).value,text:t});else location.href=u}catch(e){}}
+async function redo(id,i){const f=new FormData();f.append('start',$('#s'+i).value);f.append('dur',$('#d'+i).value);
+  const r=await api(`/api/jobs/${id}/clips/${i}`,{method:'POST',body:f});if(!r.ok)return err((await r.json()).detail);$('#go').disabled=true;poll(id)}
+async function loadLib(){try{const l=await(await api('/api/jobs')).json();if(!l.length)return;
+  $('#lib').innerHTML=l.map(j=>`<div class="flex gap-2"><button class="in text-left" onclick="poll('${j.id}')">${j.status==='done'?j.n+' clips · '+esc(j.title||'sin título'):esc(j.status)}</button><button class="btn ghost" aria-label="Borrar trabajo" onclick="del('${j.id}')">Borrar</button></div>`).join('')}catch(e){}}
+async function del(id){if(confirm('¿Borrar este trabajo y sus clips?')){await api('/api/jobs/'+id,{method:'DELETE'});$('#out').innerHTML='';loadLib()}}
+loadLib();if(localStorage.job)poll(localStorage.job);
+</script></body></html>
